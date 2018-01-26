@@ -26,10 +26,16 @@
 ; 2016/06/25 - 初版
 ;
 
+call open_cmd_file
+call getremotehostname
+call loop_cmd
+end
+
+
 :open_cmd_file
 ifdefined cmd_file
 if result != 3 then
-	filenamebox 'コマンドファイル' 0
+	filenamebox 'command file' 0
 	if result == 0 then
 		end
 	endif
@@ -38,8 +44,8 @@ endif
 
 fileopen fh_cmd_file cmd_file 0
 if fh_cmd_file == -1 then
-	sprintf 'コマンドファイルを開けません：%s' cmd_file
-	messagebox inputstr 'エラー'
+	sprintf 'cannot open command file：%s' cmd_file
+	messagebox inputstr 'error'
 	end
 endif
 
