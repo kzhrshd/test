@@ -1,0 +1,51 @@
+;
+; コンソールログインする
+;
+; 必要なパラメータ - comport, login_user, login_password, login_prompt
+; 必要に応じて - combaud
+;
+; 作成日: 2013/1/15
+; 作成者: shj@teraterm.jp
+;
+
+; パラメータチェック
+ifdefined login_prompt
+if result != 3 then
+	if nomessage_flag == 0 then
+		messagebo 'login_promptが未設定です' 'エラー'
+	endif
+	setexitcode EXIT_ERR_PARAM
+	end
+endif
+
+timeout = login_timeout
+
+tmp = ''
+sprintf2 tmp '/C=%d /BAUD=%d' comport combaud
+connect tmp
+
+sendln
+pause 1
+enablekeyb enablekeyb_flag
+
+do
+	waitregex login_prompt '[lL]ogin:' '[pP]assword:' 'Username:' 'Terminal type' '^Last login:'
+	if result == 2 then
+		sendln login_user
+		pause 1
+		continue
+	elseif result == 3 then
+		sendln login_password
+		pause 1
+		continue
+	elseif result == 4 then
+		sendln login_user
+		pause 1
+		continue
+	else
+		sendln
+		continue
+	endif
+loop while result != 1
+
+timeout = default_timeout

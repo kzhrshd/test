@@ -1,0 +1,140 @@
+;
+; すべてのマクロで参照される初期設定マクロ
+; マクロファイルの最初にincludeしてください
+;
+; 作成日: 2013/1/15
+; 作成者: shj@teraterm.jp
+;
+
+
+;;;;;;;;;;;;;;;; TeraTermバージョンチェック ;;;;;;;;;;;;;;;;
+reqver = '4.80'
+:ck_terterm_version
+getver version '4.80'
+if result < 0 then
+  sprintf 'TeraTerm Version %s 以上で動作します。TeraTermのバージョンアップを実施してください' reqver
+  messagebox inputstr 'バージョンエラー'
+  end
+endif
+
+
+;;;;;;;;;;;;;;;; 定数定義 ;;;;;;;;;;;;;;;;
+strdim ssh_auth_format 2
+SSH_AUTH_PASSWORD  = 0
+SSH_AUTH_CHALLENGE = 1
+ssh_auth_format[SSH_AUTH_PASSWORD]  = '%s:%d /ssh /2 /auth=password /user=%s /passwd=%s'
+ssh_auth_format[SSH_AUTH_CHALLENGE] = '%s:%d /ssh /2 /auth=challenge /user=%s /passwd=%s'
+ssh_auth_type = SSH_AUTH_PASSWORD
+;エラーコード
+EXIT_SUCCESS = 0			;正常終了
+EXIT_ERR_PARAM = 1			;パラメータエラー
+EXIT_BADPASSWD = 2  		;パスワードエラー
+EXIT_ERR_CMDOPEN = 3		;コマンドファイルオープンエラー
+EXIT_ERR_LOGOPEN =  4		;ログファイルオープンエラー
+EXIT_ERR_CONNECT = 5		;connectエラー
+
+
+;;;;;;;;;;;;;;;; ログイン設定 ;;;;;;;;;;;;;;;;
+login_user = '-'
+login_password = '-'
+
+
+;;;;;;;;;;;;;;;; SSH設定 ;;;;;;;;;;;;;;;;
+ssh_port = 22
+
+
+;;;;;;;;;;;;;;;; ログディレクトリ ;;;;;;;;;;;;;;;;
+ifdefined ttmldir
+if result != 3 then
+  messagebox 'ttmldirを設定してください' '設定エラー'
+  end
+endif
+makepath tmpdir ttmldir 'log'
+logdir = tmpdir
+logfile = 'logfile'
+
+
+;;;;;;;;;;;;;;;; モジュールディレクトリ ;;;;;;;;;;;;;;;;
+makepath tmpdir ttmldir 'mod'
+moddir = tmpdir
+
+
+;;;;;;;;;;;;;;;; コマンドファイルディレクトリ ;;;;;;;;;;;;;;;;
+makepath tmpdir ttmldir 'cmd'
+cmddir = tmpdir
+cmdfile = 'cmd.txt'
+
+
+;;;;;;;;;;;;;;;; COMポート ;;;;;;;;;;;;;;;;
+comport = 1
+combaud = 9600
+
+
+;;;;;;;;;;;;;;;; 接続IP数 ;;;;;;;;;;;;;;;;
+maxip = 4
+
+
+;;;;;;;;;;;;;;;; パスワード関連設定 ;;;;;;;;;;;;;;;;
+passwdfile = 'conf\passwd.dat'
+pw_ident = '' ;getpasswordで使用する識別子
+
+
+;;;;;;;;;;;;;;;; タイムアウト設定 ;;;;;;;;;;;;;;;;
+; ログインタイムアウト（秒）
+login_timeout = 3
+; デフォルトタイムアウト
+default_timeout = 0
+default_mtimeout = 0
+timeout = default_timeout
+mtimeout = default_mtimeout
+;waitタイムアウト（秒）
+;このパラメータはログイン処理など短時間で応答がある場合を想定しているので
+;コマンドの実行結果待ちなど長時間が想定される場合はタイムアウト値を調整すること
+wait_timeout = 10
+; waitregexで待ち受ける際にsyncするか
+; 1にセットするとsyncしますが、コンソールで処理する際にTeraTermマクロがフリーズする場合があります
+loop_sync_flag = 0
+
+
+;;;;;;;;;;;;;;;; ログファイル関連設定 ;;;;;;;;;;;;;;;;
+; バイナリモード（アスキーモードにする場合は0）
+binary_flag = 1
+; ファイルを追加モードで開く（上書きする場合は 0）
+append_flag = 1
+; ASCII 非表示文字をログに書き込まない（書き込む場合は 1）
+plain_text_flag = 0
+; 以下はバイナリモードの場合、無視される
+; タイムスタンプを書き込まない（書き込む場合は 1）
+timestamp_flag = 0
+; ログ転送ダイアログを表示する（表示しない場合は 1）
+hide_dialog_flag = 0
+; ログファイルを開いた時点の端末バッファをファイルに書き込む（書き込む場合は1）
+include_screen_buffer_flag = 0
+; ログファイル名の拡張子
+logsuffix = '.log'
+; マクロ終了時にログを閉じる（自動的に閉じる場合は 1、閉じない場合は 0）
+logautoclosemode_flag = 1
+; ログファイル名に日付を付加する（付加する場合は 1、しない場合は 0）
+logname_with_datetime = 1
+
+
+;;;;;;;;;;;;;;;; ファイルハンドル ;;;;;;;;;;;;;;;;
+fh_cmdfile = -1
+
+
+;;;;;;;;;;;;;;;; フラグ ;;;;;;;;;;;;;;;;
+; エラー発生時、エラーメッセージを表示しなくない場合は0以外に設定する
+nomessage_flag = 0
+; キーボード入力抑制（抑制する場合 0、しない場合は 1）
+enablekeyb_flag = 1
+
+
+;;;;;;;;;;;;;;;; その他設定 ;;;;;;;;;;;;;;;;
+; コマンドを実行する間隔（秒）
+cmdinterval = 1
+; コマンド実行時の空行数
+nblank_lines = 3
+; ファイルからコマンドを読み出して実行する際にファイルの先頭に空行を入れる
+firstblank_lines = 3
+; 改行ごとに何ミリ秒待つか
+nblank_mpause = 330

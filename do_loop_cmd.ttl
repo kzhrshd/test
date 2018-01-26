@@ -1,0 +1,79 @@
+;
+; コマンドファイルから１行ずつ読み込んで送信する
+;
+; 必要なパラメータ - fh, waitprompt
+; 前提条件 - ファイルハンドル(fh_cmdfile)が有効であること
+;
+; 作成日: 2013/1/15
+; 作成者: shj@teraterm.jp
+;
+
+;この値を小さくすると誤作動する場合あり
+more_pause_msec = 2500
+more_string = '--\s*[mM]ore\s*--'
+
+; Cisco用プロンプト
+sprintf2 waitprompt_cisco '^%s(\([a-z]+(-.+)?\)?)?[>#]$' target
+; HP用プロンプト
+sprintf2 waitprompt_hp '^<%s>$' target
+; Juniper NetScreen用プロンプト
+sprintf2 waitprompt_ns '^%s->\s$' target
+; FortiGate用プロンプト
+sprintf2 waitprompt_forti '^%s\s(\(.+\)\s)?#\s$' target
+; BIG-IP用プロンプト
+sprintf2 waitprompt_bigip '^\[[a-zA-Z0-9]*@%s:[a-zA-Z]*:[a-zA-Z]*\]\s[a-zA-Z]*#' target
+
+setsync loop_sync_flag
+enablekeyb enablekeyb_flag
+
+; コマンド実行前に空行を入れる処理
+if firstblank_lines > 0 then
+	for i 1 nblank_lines
+		sendln
+		waitregex waitprompt_cisco waitprompt_hp waitprompt_ns waitprompt_forti waitprompt_bigip
+		mpause nblank_mpause
+	next
+endif
+
+while 1
+	filereadln fh_cmdfile cmdbuf
+	if result then
+		break
+	endif
+
+	sendln cmdbuf
+
+	; コマンド実行後の待ち受け処理
+	do
+		; コマンドプロンプトもしくは--More--の受信を待つ
+		while 1
+			waitregex waitprompt_cisco waitprompt_hp waitprompt_ns waitprompt_forti waitprompt_bigip
+			if result > 1 then
+				mpause more_pause_msec
+				send ' '
+			elseif result == 1 then
+				break
+			endif
+		endwhile
+
+		; コマンド実行後、空行を入れる処理
+		if nblank_lines > 0 then
+			for i 1 nblank_lines
+				sendln
+				; 改行してコマンドプロンプトもしくは--More--の受信を待つ
+				while 1
+					waitregex waitprompt more_string
+					if result > 1 then
+						mpause more_pause_msec
+						send ' '
+					elseif result == 1 then
+						break
+					endif
+				endwhile
+				mpause nblank_mpause
+			next
+		endif
+	loop while result != 1
+endwhile
+
+setsync 0

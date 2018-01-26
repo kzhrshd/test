@@ -1,0 +1,252 @@
+; コマンドファイルを開き1行ずつ実行しながらログファイルに記録する
+; ※事前にリモート接続もしくはコンソール接続していること
+;
+; 引数
+; :open_cmd_file
+; 	cmd_file - コマンドファイル（未指定ならばダイアログが開く）
+;
+; :open_logfile
+; target - リモートホスト名
+; 	check_dup_logfile - 0:なにもしない 1:同一ファイル名があればファイル名に数字を付ける
+; 	log_file - ログファイル名
+; 	b_flag - 0:受信した漢字・改行文字を変換 1:バイナリモード
+; 	a_flag - 0:上書きモード 1:追記モード
+; 	p_flag - 0:ASCII 非表示文字をログに書き込む 1:ASCII 非表示文字をログに書き込まない
+; 	t_flag - 0:なにもしない 1:ログの行頭に時刻を追加する
+; 	h_flag - 0:ログ転送のダイアログを表示する 1:ログ転送のダイアログを表示しない
+; 	i_flag - 0:なにもしない 1:現在の端末バッファすべてを先にファイルに書き込む（4.80以降）
+;
+; :loop_cmd
+; ※open_cmd_fileを使ってコマンドファイルを開いていること
+; target - プロンプトに表示されるホスト名
+;
+; :getremotehostname
+; 引数は必要なし
+;
+; 2016/06/25 - 初版
+;
+
+:open_cmd_file
+ifdefined cmd_file
+if result != 3 then
+	filenamebox 'コマンドファイル' 0
+	if result == 0 then
+		end
+	endif
+	cmd_file = inputstr
+endif
+
+fileopen fh_cmd_file cmd_file 0
+if fh_cmd_file == -1 then
+	sprintf 'コマンドファイルを開けません：%s' cmd_file
+	messagebox inputstr 'エラー'
+	end
+endif
+
+return
+
+
+:open_logfile
+getdir cdir
+changedir cdir
+ifdefined log_file
+if result != 3 then
+	log_file = 'log.txt'
+endif
+
+; ファイル名チェック
+; 同一ファイル名があれば末尾に(数字)をつける
+ifdefined check_dup_logfile
+if result != 1 then
+	check_dup_logfile = 0
+endif
+
+if check_dup_logfile == 1 then
+	while 1
+		; ファイルが存在するか？
+		size = 0
+		filestat log_file size
+		if result == 0 && size > 0 then
+			strmatch log_file '^.*\(([0-9]+)\)\.([tTlL][xXoO][tTgG])$'
+			; ファイルが存在して、すでにファイル名に(数字)がある場合
+			if result != 0 then
+				log_suffix = groupmatchstr2
+				cur_lognum_str = groupmatchstr1
+				str2int cur_lognum_int cur_lognum_str
+				new_lognum_int = cur_lognum_int + 1
+				sprintf2 new_lognum_str '(%d)' new_lognum_int
+				strreplace log_file 1 '\([0-9]+\)' new_lognum_str
+			else
+			; ファイル名に(1)を付ける
+				strmatch log_file '.*(\.[tTlL][xXoO][tTgG])$'
+				log_suffix = groupmatchstr1
+				sprintf '(1)%s' log_suffix
+				strreplace log_file 1 log_suffix inputstr
+			endif
+		else
+			break
+		endif
+	endwhile
+endif
+
+; b_flag
+ifdefined b_flag
+if result != 1 then
+	b_flag = 0
+else
+	b_flag = 1
+endif
+; a_flag
+ifdefined a_flag
+if result != 1 then
+	a_flag = 1
+else
+	a_flag = 0
+endif
+; p_flag
+ifdefined p_flag
+if result != 1 then
+	p_flag = 1
+else
+	p_flag = 0
+endif
+; t_flag
+ifdefined t_flag
+if result != 1 then
+	t_flag = 0
+else
+	t_flag = 1
+endif
+; h_flag
+ifdefined h_flag
+if result != 1 then
+	h_flag = 0
+else
+	h_flag = 1
+endif
+; i_flag
+ifdefined i_flag
+if result != 1 then
+	i_flag = 0
+else
+	i_flag = 1
+endif
+
+logopen log_file b_flag a_flag p_flag t_flag h_flag i_flag
+if result == -1 then
+	sprintf 'ログファイルを開けません: %s' log_file
+	messagebox inputstr 'エラー'
+	end
+endif
+
+return
+
+
+:loop_cmd
+;この値を小さくすると誤作動する場合あり
+more_pause_msec = 2500
+more_string = '-*(\s*)?[mM]ore(\s*)-*'
+nblank_mpause = 330
+nblank_lines = 3
+
+; Cisco用プロンプト
+sprintf2 wp_cisco '^%s(\([a-z]+(-.+)?\)?)?[>#]$' remotehostname
+; HP用プロンプト
+sprintf2 wp_hp '^<%s>$' remotehostname
+; Juniper NetScreen用プロンプト
+sprintf2 wp_ns '^%s->\s$' remotehostname
+; FortiGate用プロンプト
+sprintf2 wp_forti '^%s\s(\(.+\)\s)?#\s$' remotehostname
+; BIG-IP用プロンプト
+sprintf2 wp_bigip '^\[[a-zA-Z0-9]*@%s:[a-zA-Z]*:[a-zA-Z]*\]\s[a-zA-Z]*#' remotehostname
+
+; コマンド実行前に空行を入れる処理
+for i 1 nblank_lines
+	sendln
+	waitregex wp_cisco wp_hp wp_ns wp_forti wp_bigip
+	mpause nblank_mpause
+next
+
+while 1
+	filereadln fh_cmd_file cmdbuf
+	if result then
+		break
+	endif
+
+	sendln cmdbuf
+
+	; コマンド実行後の待ち受け処理
+	do
+		; コマンドプロンプトもしくは--More--の受信を待つ
+		while 1
+			waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip
+			; moreを受信した場合
+			if result == 1 then
+				mpause more_pause_msec
+				send ' '
+			elseif result > 1 then
+				break
+			endif
+		endwhile
+
+		; コマンド実行後、空行を入れる処理
+		if nblank_lines > 0 then
+			for i 1 nblank_lines
+				sendln
+				; 改行してコマンドプロンプトもしくは--More--の受信を待つ
+				while 1
+					waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip
+					if result == 1 then
+						mpause more_pause_msec
+						send ' '
+					elseif result > 1 then
+						break
+					endif
+				endwhile
+				mpause nblank_mpause
+			next
+		endif
+		break
+	endwhile
+endwhile
+fileclose fh_cmd_file
+logclose 
+
+return
+
+
+:getremotehostname
+; 同期モードに設定
+setsync 1
+
+; タイムアウト
+timeout_org = timeout
+timeout = 1
+
+; リモートホスト名
+remotehostname = ''
+
+while 1
+    pause 1
+    sendln
+
+    waitregex '[a-zA-Z0-9]*@([a-zA-Z0-9\-_]*)' '^<?([a-zA-Z0-9\-_]*)'
+    if result == 0 then
+        messagebox 'リモートホスト名を取得できない' 'タイムアウト'
+        return
+    endif
+    remotehostname = groupmatchstr1
+    strlen remotehostname
+    if result == 0 then
+        continue
+    else
+        break
+    endif
+endwhile
+
+; 同期モード解除
+setsync 0
+; タイムアウトを戻す
+timeout =timeout_org
+
+return
