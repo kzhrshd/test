@@ -1,0 +1,18 @@
+ter len 0
+show version
+show module
+show bootflash: all
+show cat4000_flash:
+show license all
+show bootvar
+show diagnostic result module all detail
+show env
+show vlan
+show vtp status
+show idprom supervisor
+show startup-config
+dir all
+show platform crashdump
+show redundancy states
+show slavebootflash: all
+show slavecat4000_flash:

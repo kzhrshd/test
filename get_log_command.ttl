@@ -216,7 +216,7 @@ while 1
 	endwhile
 endwhile
 fileclose fh_cmd_file
-logclose 
+;logclose 
 
 return
 
