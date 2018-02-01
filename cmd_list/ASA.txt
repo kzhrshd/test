@@ -1,3 +1,4 @@
+terminal pager 0
 show ver
 show activation-key
 show failover
