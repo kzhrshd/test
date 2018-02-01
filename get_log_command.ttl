@@ -157,6 +157,8 @@ nblank_lines = 3
 
 ; Cisco用プロンプト
 sprintf2 wp_cisco '^%s(\([a-z]+(-.+)?\)?)?[>#]$' remotehostname
+; Cisco ASA用プロンプト
+sprintf2 wp_asa '^%s(\([a-z]+(-.+)?\)?)?[>#]\s$' remotehostname
 ; HP用プロンプト
 sprintf2 wp_hp '^<%s>$' remotehostname
 ; Juniper NetScreen用プロンプト
@@ -169,7 +171,7 @@ sprintf2 wp_bigip '^\[[a-zA-Z0-9]*@%s:[a-zA-Z]*:[a-zA-Z]*\]\s[a-zA-Z]*#' remoteh
 ; コマンド実行前に空行を入れる処理
 for i 1 nblank_lines
 	sendln
-	waitregex wp_cisco wp_hp wp_ns wp_forti wp_bigip
+	waitregex wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa
 	mpause nblank_mpause
 next
 
