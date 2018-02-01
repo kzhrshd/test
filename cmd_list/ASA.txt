@@ -1,0 +1,16 @@
+show ver
+show activation-key
+show failover
+show flash: all
+dir all
+show env
+show module
+show inventory
+show raid
+show mode
+show firewall
+show crash
+show run
+show conf
+more system:running-config
+show module sfr detail

@@ -1,0 +1,15 @@
+ter len 0
+show system mtu
+show version
+show switch detail
+show sdm prefer
+show flash:
+dir flash:
+show boot
+show post
+show env all
+show inventory
+show vlan
+show vtp status
+show startup-config
+dir all
