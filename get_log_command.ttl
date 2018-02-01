@@ -187,7 +187,7 @@ while 1
 	do
 		; コマンドプロンプトもしくは--More--の受信を待つ
 		while 1
-			waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip
+			waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa
 			; moreを受信した場合
 			if result == 1 then
 				mpause more_pause_msec
@@ -203,7 +203,7 @@ while 1
 				sendln
 				; 改行してコマンドプロンプトもしくは--More--の受信を待つ
 				while 1
-					waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip
+					waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa
 					if result == 1 then
 						mpause more_pause_msec
 						send ' '
