@@ -1,0 +1,11 @@
+ter len 0
+show zerotouch
+show version
+show boot-config
+dir flash:
+show environment all
+show inventory
+show running-config
+show startup-config
+show vlan
+dir all

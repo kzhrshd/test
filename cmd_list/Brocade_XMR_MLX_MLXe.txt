@@ -1,0 +1,11 @@
+skip-page-display
+show memory
+show version
+show flash
+show module
+show chassis
+show media
+show run
+show conf
+dm save
+dir
