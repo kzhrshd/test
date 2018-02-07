@@ -1,36 +1,3 @@
-terminal pager 0
-show clock
-show clock detail
-show bootvar
-show version
+ter len 0
+show version detail
 show inventory
-show import webvpn customization
-show import webvpn url-list
-show import webvpn translation-table
-show import webvpn mst-translation
-show import webvpn webcontent
-show import webvpn AnyConnect-customization
-show import webvpn plug-in
-show cpu
-show cpu detailed
-show processes cpu-usage
-show memory
-show processes memory
-show module all
-show ntp status
-show ntp associations
-show traffic
-show crashinfo
-show flash: all
-show context
-show activation-key
-show interface
-show interface detail
-show interface ip brief
-show vlan
-show arp
-show failover
-show failover state
-show failover history
-show failover interface
-show fail
