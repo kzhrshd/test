@@ -1,3 +1,5 @@
-ter len 0
-show version detail
+terminal pager 0
+show version
 show inventory
+show module
+show tech-support

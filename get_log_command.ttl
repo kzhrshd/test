@@ -238,7 +238,7 @@ while 1
     pause 1
     sendln
 
-    waitregex '[a-zA-Z0-9]*@([a-zA-Z0-9\-_]*)' '^<?([a-zA-Z0-9\-\s_]*)'
+    waitregex '[a-zA-Z0-9]*@([a-zA-Z0-9\-_]*)' '^<?([a-zA-Z0-9\-_]*)'
     if result == 0 then
         messagebox 'リモートホスト名を取得できない' 'タイムアウト'
         return
