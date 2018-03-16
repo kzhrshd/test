@@ -1,5 +1,12 @@
-terminal pager 0
-show version
+ter len 0
+show bootdisk: all
+show file systems
+remote command switch show version
+show switch virtual
+show switch virtual link
+show switch virtual role
+show module switch all
+show power switch all
 show inventory
-show module
-show tech-support
+show vlan
+show vtp status
