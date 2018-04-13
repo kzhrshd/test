@@ -157,8 +157,6 @@ nblank_lines = 3
 
 ; Cisco用プロンプト
 sprintf2 wp_cisco '^%s(\([a-z]+(-.+)?\)?)?[>#]$' remotehostname
-; Cisco ASA用プロンプト
-sprintf2 wp_asa '^%s(\([a-z]+(-.+)?\)?)?[>#]\s$' remotehostname
 ; HP用プロンプト
 sprintf2 wp_hp '^<%s>$' remotehostname
 ; Juniper NetScreen用プロンプト
@@ -167,11 +165,15 @@ sprintf2 wp_ns '^%s->\s$' remotehostname
 sprintf2 wp_forti '^%s\s(\(.+\)\s)?#\s$' remotehostname
 ; BIG-IP用プロンプト
 sprintf2 wp_bigip '^\[[a-zA-Z0-9]*@%s:[a-zA-Z]*:[a-zA-Z]*\]\s[a-zA-Z]*#' remotehostname
+; Cisco ASA用プロンプト
+sprintf2 wp_asa '^%s(\([a-z]+(-.+)?\)?)?[>#]\s$' remotehostname
+; Paloalto用プロンプト
+sprintf2 wp_palo '^[a-zA-Z0-9]*@%s(\(?[a-zA-Z]*\)?)?[>#]\s$' remotehostname
 
 ; コマンド実行前に空行を入れる処理
 for i 1 nblank_lines
 	sendln
-	waitregex wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa
+	waitregex wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa wp_palo
 	mpause nblank_mpause
 next
 
@@ -187,7 +189,7 @@ while 1
 	do
 		; コマンドプロンプトもしくは--More--の受信を待つ
 		while 1
-			waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa
+			waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa wp_palo
 			; moreを受信した場合
 			if result == 1 then
 				mpause more_pause_msec
@@ -203,7 +205,7 @@ while 1
 				sendln
 				; 改行してコマンドプロンプトもしくは--More--の受信を待つ
 				while 1
-					waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa
+					waitregex more_string wp_cisco wp_hp wp_ns wp_forti wp_bigip wp_asa wp_palo
 					if result == 1 then
 						mpause more_pause_msec
 						send ' '
