@@ -1,4 +1,5 @@
 ter len 0
+show system mtu
 show version
 show module
 show bootflash: all
@@ -7,6 +8,8 @@ show license all
 show bootvar
 show diagnostic result module all detail
 show env
+show power
+show inv
 show vlan
 show vtp status
 show idprom supervisor

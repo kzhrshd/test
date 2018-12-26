@@ -1,0 +1,50 @@
+prompt = '>'
+sendln 'config paging disable'
+wait prompt
+sendln
+sendln
+sendln 'show boot'
+wait prompt
+sendln
+sendln
+sendln 'show sysinfo'
+wait prompt
+sendln
+sendln
+sendln 'show license all'
+wait prompt
+sendln
+sendln
+sendln 'show inventory'
+wait prompt
+sendln
+sendln
+sendln 'show interface summary'
+wait prompt
+sendln
+sendln
+sendln 'show time'
+wait prompt
+sendln
+sendln
+sendln 'show tech-support'
+wait prompt
+sendln
+sendln
+sendln 'show msglog'
+wait prompt
+sendln
+sendln
+sendln 'show traplog'
+wait prompt
+sendln
+sendln
+sendln 'show run-config'
+wait 'Press Enter'
+sendln
+sendln
+sendln
+wait prompt
+sendln
+sendln
+end

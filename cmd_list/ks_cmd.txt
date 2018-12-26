@@ -1,12 +1,7 @@
 ter len 0
-show bootdisk: all
-show file systems
-remote command switch show version
-show switch virtual
-show switch virtual link
-show switch virtual role
-show module switch all
-show power switch all
+show version
 show inventory
-show vlan
-show vtp status
+show platform
+show license udi
+show license feature
+show license detail
